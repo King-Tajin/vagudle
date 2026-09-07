@@ -485,6 +485,8 @@ function App() {
     dailyNumber,
     dailyStats,
     dailyResult,
+    isDailyMode,
+    guesses,
   });
   const handleUsernameSavedForWidget = async () => {
     await handleUsernameSaved();

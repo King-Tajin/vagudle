@@ -16,6 +16,8 @@ type Params = {
   dailyNumber: number;
   dailyStats: DailyStats;
   dailyResult: DailyResult | null;
+  isDailyMode: boolean;
+  guesses: string[];
 };
 
 const toRankState = (
@@ -46,6 +48,8 @@ export const useDailyWidgetSync = ({
   dailyNumber,
   dailyStats,
   dailyResult,
+  isDailyMode,
+  guesses,
 }: Params): { refreshRank: () => Promise<void> } => {
   const [rankState, setRankState] = useState<DailyWidgetRankState | null>(null);
 
@@ -82,6 +86,7 @@ export const useDailyWidgetSync = ({
   useEffect(() => {
     if (!dailyConfig || !rankState) return;
     const hasPlayedToday = dailyResult?.date === dailyConfig.date;
+    const inProgress = isDailyMode && !hasPlayedToday && guesses.length > 0;
     void syncDailyWidget({
       date: dailyConfig.date,
       dailyNumber,
@@ -90,12 +95,21 @@ export const useDailyWidgetSync = ({
       currentStreak: dailyStats.currentStreak,
       bestStreak: dailyStats.bestStreak,
       hasPlayedToday,
+      inProgress,
       wonToday: hasPlayedToday ? (dailyResult?.won ?? null) : null,
       guessCount: hasPlayedToday ? (dailyResult?.guessCount ?? null) : null,
       maxGuesses: hasPlayedToday ? (dailyResult?.maxGuesses ?? null) : null,
       rank: rankState,
     });
-  }, [dailyConfig, dailyNumber, dailyStats, dailyResult, rankState]);
+  }, [
+    dailyConfig,
+    dailyNumber,
+    dailyStats,
+    dailyResult,
+    rankState,
+    isDailyMode,
+    guesses,
+  ]);
 
   return { refreshRank };
 };

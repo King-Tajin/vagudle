@@ -11,6 +11,7 @@ export type DailyWidgetSyncPayload = {
   currentStreak: number;
   bestStreak: number;
   hasPlayedToday: boolean;
+  inProgress: boolean;
   wonToday: boolean | null;
   guessCount: number | null;
   maxGuesses: number | null;
