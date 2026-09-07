@@ -132,6 +132,9 @@ const stripVideoMetadata = async (filePath) => {
     ...metadataArgs,
     "-c",
     "copy",
+    "-fflags",
+    "+bitexact",
+    "-bitexact",
     tempPath,
   ]);
   await withTimeout(promise, filePath, () => child.kill());
@@ -151,6 +154,9 @@ const stripSoundMetadata = async (filePath) => {
     "-1",
     "-c",
     "copy",
+    "-fflags",
+    "+bitexact",
+    "-bitexact",
     tempPath,
   ]);
   await withTimeout(promise, filePath, () => child.kill());
