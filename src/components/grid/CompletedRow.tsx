@@ -35,6 +35,7 @@ export const CompletedRow = ({
   const badgeSize = Math.max(18, Math.min(28, Math.round(cellSize * 0.5)));
   const badgeFontSize = Math.max(10, Math.round(badgeSize * 0.55));
   const recycleSize = Math.max(18, Math.min(28, Math.round(cellSize * 0.5)));
+  const recycleButtonSize = Math.round(recycleSize * 1.5);
 
   return (
     <div className="flex justify-center items-center mb-1">
@@ -43,11 +44,19 @@ export const CompletedRow = ({
           <button
             type="button"
             onClick={() => onRowReset(rowIndex)}
-            className="flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity"
-            style={{ width: recycleSize, height: recycleSize }}
+            className="group relative flex items-center justify-center opacity-70 hover:opacity-90 transition-opacity"
+            style={{ width: recycleButtonSize, height: recycleButtonSize }}
             aria-label={strings.COMPLETED_ROW_RESET_ARIA_LABEL}
           >
-            <RecycleIcon className="w-full h-full text-gray-400" />
+            <div className="absolute inset-0 rounded-full bg-[rgba(10,10,20,0.92)] group-hover:bg-[rgba(10,10,20,1)] border-2 border-[rgba(255,255,255,0.25)] backdrop-blur-[10px] transition-colors" />
+            <RecycleIcon
+              className="relative text-gray-400"
+              style={{
+                width: recycleSize,
+                height: recycleSize,
+                transform: "translate(-1px, -1px)",
+              }}
+            />
           </button>
         </div>
 

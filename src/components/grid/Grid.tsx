@@ -270,7 +270,19 @@ export const Grid = ({
               }}
               aria-label={strings.GRID_RESET_ALL_ARIA_LABEL}
             >
-              <RecycleIcon className="w-9 h-9 text-gray-400" />
+              <div className="relative flex items-center justify-center">
+                <RecycleIcon className="w-9 h-9 text-gray-400" />
+                <span
+                  className="absolute font-bold text-gray-400 pointer-events-none"
+                  style={{
+                    fontSize: 18,
+                    lineHeight: 1,
+                    transform: "translate(1px, 2px)",
+                  }}
+                >
+                  *
+                </span>
+              </div>
             </button>
           </div>
 
