@@ -9,18 +9,6 @@ import type { Achievement } from "./achievements";
 import { BACKGROUNDS } from "./backgrounds";
 import strings from "../constants/strings";
 
-export type CapacitorShareOptions = {
-  title?: string;
-  text?: string;
-  url?: string;
-  dialogTitle?: string;
-  files?: string[];
-};
-
-export type CapacitorSharePlugin = {
-  share: (options: CapacitorShareOptions) => Promise<{ activityType?: string }>;
-};
-
 const parser = new UAParser();
 const browser = parser.getBrowser();
 

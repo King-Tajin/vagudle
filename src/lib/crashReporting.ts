@@ -1,9 +1,3 @@
-export type CapacitorCrashlyticsPlugin = {
-  recordException: (options: { message: string }) => Promise<void>;
-  log: (options: { message: string }) => Promise<void>;
-  setUserId: (options: { userId: string }) => Promise<void>;
-};
-
 const getCrashlyticsPlugin = (): CapacitorCrashlyticsPlugin | null => {
   if (typeof window === "undefined") return null;
   if (!window.Capacitor?.isNativePlatform?.()) return null;

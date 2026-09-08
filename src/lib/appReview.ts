@@ -1,11 +1,3 @@
-export type CapacitorReviewPromptResult = {
-  requested: boolean;
-};
-
-export type CapacitorReviewPromptPlugin = {
-  requestReview: () => Promise<CapacitorReviewPromptResult>;
-};
-
 const REVIEW_PROMPT_WIN_MILESTONES = [3, 50];
 
 const getReviewPromptPlugin = (): CapacitorReviewPromptPlugin | null => {

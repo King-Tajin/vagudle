@@ -5,17 +5,6 @@ import {
   getEffectiveUnlockedIds,
 } from "./achievements";
 import { loadStats } from "./stats";
-import type { CapacitorFirebaseAuthPlugin } from "./googleNativeAuth";
-import type {
-  CapacitorLocalNotificationsPlugin,
-  CapacitorNotificationPrimerPlugin,
-} from "./notifications";
-import type { CapacitorHapticsPlugin } from "./haptics";
-import type { CapacitorReviewPromptPlugin } from "./appReview";
-import type { CapacitorAppPlugin } from "./backButton";
-import type { CapacitorSharePlugin } from "./share";
-import type { CapacitorCrashlyticsPlugin } from "./crashReporting";
-import type { CapacitorDailyWidgetPlugin } from "./dailyWidget";
 import { setCrashUserId, logBreadcrumb } from "./crashReporting";
 import strings from "../constants/strings";
 
@@ -38,45 +27,6 @@ export type PlayGamesProgressSnapshot = {
   bestCurrentStreak: number;
   uniqueWordCount: number;
 };
-
-type CapacitorPlayGamesPlugin = {
-  signIn: () => Promise<{ serverAuthCode: string }>;
-  unlockAchievement: (options: { achievementId: string }) => Promise<void>;
-  setAchievementSteps: (options: {
-    achievementId: string;
-    steps: number;
-  }) => Promise<void>;
-  submitScore: (options: {
-    leaderboardId: string;
-    score: number;
-  }) => Promise<void>;
-};
-
-type CapacitorBrowserPlugin = {
-  open: (options: { url: string; presentationStyle?: string }) => Promise<void>;
-};
-
-declare global {
-  interface Window {
-    Capacitor?: {
-      isNativePlatform?: () => boolean;
-      getPlatform?: () => string;
-      Plugins?: {
-        PlayGamesAuth?: CapacitorPlayGamesPlugin;
-        Browser?: CapacitorBrowserPlugin;
-        FirebaseAuthentication?: CapacitorFirebaseAuthPlugin;
-        LocalNotifications?: CapacitorLocalNotificationsPlugin;
-        NotificationPrimer?: CapacitorNotificationPrimerPlugin;
-        Haptics?: CapacitorHapticsPlugin;
-        ReviewPrompt?: CapacitorReviewPromptPlugin;
-        App?: CapacitorAppPlugin;
-        Share?: CapacitorSharePlugin;
-        FirebaseCrashlytics?: CapacitorCrashlyticsPlugin;
-        DailyWidget?: CapacitorDailyWidgetPlugin;
-      };
-    };
-  }
-}
 
 const RENEW_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000;
 

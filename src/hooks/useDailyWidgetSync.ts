@@ -7,7 +7,6 @@ import {
   type DailyStats,
 } from "../lib/daily";
 import { syncDailyWidget, type DailyWidgetRankState } from "../lib/dailyWidget";
-import type { CapacitorAppPlugin } from "../lib/backButton";
 import type { CloudAuthUser } from "./useCloudAuth";
 
 type Params = {

@@ -6,7 +6,7 @@ import {
   DICT_DESCRIPTIONS,
   type ChallengeConfig,
 } from "../../lib/challenge";
-import { useBackButtonClose } from "../../lib/backButton";
+import { useBackButtonClose, useBackGestureStyle } from "../../lib/backButton";
 import strings from "../../constants/strings";
 
 type Props = {
@@ -17,6 +17,7 @@ type Props = {
 
 export const ChallengeAcceptModal = ({ isOpen, onPlay, config }: Props) => {
   useBackButtonClose(isOpen, () => {});
+  const peekStyle = useBackGestureStyle(isOpen);
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -32,7 +33,10 @@ export const ChallengeAcceptModal = ({ isOpen, onPlay, config }: Props) => {
         >
           <div
             className="absolute inset-0 transition-opacity"
-            style={{ background: "rgba(0,0,0,0.92)" }}
+            style={{
+              background: "rgba(0,0,0,0.92)",
+              opacity: peekStyle.opacity,
+            }}
           />
         </TransitionChild>
 
@@ -46,10 +50,11 @@ export const ChallengeAcceptModal = ({ isOpen, onPlay, config }: Props) => {
           leaveTo="opacity-0 translate-y-4 scale-95"
         >
           <div
-            className="relative max-w-sm w-full mx-auto shadow-2xl"
+            className="relative max-w-sm w-full mx-auto shadow-2xl transition-all duration-75"
             style={{
               background: "#0a0014",
               border: "4px solid #5000aa",
+              ...peekStyle,
             }}
           >
             <div

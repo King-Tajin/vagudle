@@ -7,7 +7,7 @@ import {
 } from "@headlessui/react";
 import { X } from "lucide-react";
 import HatIcon from "@/assets/icons/propeller-hat.svg?react";
-import { useBackButtonClose } from "../../lib/backButton";
+import { useBackButtonClose, useBackGestureStyle } from "../../lib/backButton";
 import strings from "../../constants/strings";
 
 type Props = {
@@ -30,6 +30,7 @@ export const BaseModal = ({
   zIndexClass = "z-60",
 }: Props) => {
   useBackButtonClose(isOpen, handleClose);
+  const peekStyle = useBackGestureStyle(isOpen);
 
   return (
     <Dialog
@@ -41,7 +42,10 @@ export const BaseModal = ({
         <DialogBackdrop
           transition
           className="fixed inset-0 transition-opacity duration-200 ease-out data-closed:opacity-0 data-leave:duration-150 data-leave:ease-in"
-          style={{ background: "rgba(0,0,0,0.88)" }}
+          style={{
+            background: "rgba(0,0,0,0.88)",
+            opacity: peekStyle.opacity,
+          }}
         />
 
         <span
@@ -60,6 +64,7 @@ export const BaseModal = ({
             borderImageSlice: 1,
             borderImageSource:
               "linear-gradient(180deg, #5000aa 0%, #28007c 100%)",
+            ...peekStyle,
           }}
         >
           <div

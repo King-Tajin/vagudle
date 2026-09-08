@@ -3,7 +3,10 @@ import { Transition, TransitionChild } from "@headlessui/react";
 import { X, Gamepad2, Info, Sparkles, Code2, Send, Swords } from "lucide-react";
 import HatIcon from "@/assets/icons/propeller-hat.svg?react";
 
-import { useBackButtonClose } from "../../../lib/backButton";
+import {
+  useBackButtonClose,
+  useBackGestureStyle,
+} from "../../../lib/backButton";
 import { isNativeApp } from "../../../lib/browser";
 import { ActivityLink } from "../../ActivityLink";
 import { ResetDataModal } from "../ResetDataModal";
@@ -73,6 +76,7 @@ export const InfoModal = ({
   const previousPathRef = useRef<string | null>(null);
 
   useBackButtonClose(isOpen, handleClose);
+  const peekStyle = useBackGestureStyle(isOpen);
 
   useEffect(() => {
     if (typeof window === "undefined" || !isResetModalOpen) return;
@@ -119,7 +123,10 @@ export const InfoModal = ({
               type="button"
               aria-label={strings.CLOSE_BUTTON_LABEL}
               className="absolute inset-0 w-full h-full m-0 p-0 border-0 transition-opacity"
-              style={{ background: "rgba(0,0,0,0.75)" }}
+              style={{
+                background: "rgba(0,0,0,0.75)",
+                opacity: peekStyle.opacity,
+              }}
               onClick={handleClose}
             />
           </TransitionChild>
@@ -135,13 +142,14 @@ export const InfoModal = ({
               leaveTo="translate-x-full"
             >
               <div
-                className="relative w-screen max-w-sm flex flex-col h-full shadow-2xl"
+                className="relative w-screen max-w-sm flex flex-col h-full shadow-2xl transition-all duration-75"
                 style={{
                   background: "#0a0014",
                   borderLeft: "4px solid",
                   borderImageSlice: 1,
                   borderImageSource:
                     "linear-gradient(180deg, #5000aa 0%, #28007c 100%)",
+                  ...peekStyle,
                 }}
               >
                 <div

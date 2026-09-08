@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { DICT_LABELS, DICT_DESCRIPTIONS } from "../../lib/challenge";
 import type { DuelConfig, DuelSaveStatus } from "../../lib/duel";
-import { useBackButtonClose } from "../../lib/backButton";
+import { useBackButtonClose, useBackGestureStyle } from "../../lib/backButton";
 import strings from "../../constants/strings";
 
 type Props = {
@@ -33,6 +33,7 @@ export const DuelModal = ({
   isActivityMode = false,
 }: Props) => {
   useBackButtonClose(isOpen, () => {});
+  const peekStyle = useBackGestureStyle(isOpen);
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -48,7 +49,10 @@ export const DuelModal = ({
         >
           <div
             className="absolute inset-0 transition-opacity"
-            style={{ background: "rgba(0,0,0,0.92)" }}
+            style={{
+              background: "rgba(0,0,0,0.92)",
+              opacity: peekStyle.opacity,
+            }}
           />
         </TransitionChild>
 
@@ -62,10 +66,11 @@ export const DuelModal = ({
           leaveTo="opacity-0 translate-y-4 scale-95"
         >
           <div
-            className="relative max-w-sm w-full mx-auto shadow-2xl"
+            className="relative max-w-sm w-full mx-auto shadow-2xl transition-all duration-75"
             style={{
               background: "#0a0014",
               border: "4px solid #5000aa",
+              ...peekStyle,
             }}
           >
             <div

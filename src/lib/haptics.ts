@@ -1,11 +1,3 @@
-type CapacitorImpactStyle = "LIGHT" | "MEDIUM" | "HEAVY";
-type CapacitorNotificationType = "SUCCESS" | "WARNING" | "ERROR";
-
-export type CapacitorHapticsPlugin = {
-  impact: (options: { style: CapacitorImpactStyle }) => Promise<void>;
-  notification: (options: { type: CapacitorNotificationType }) => Promise<void>;
-};
-
 const getHapticsPlugin = (): CapacitorHapticsPlugin | null => {
   if (typeof window === "undefined") return null;
   if (!window.Capacitor?.isNativePlatform?.()) return null;

@@ -1,24 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-export type CapacitorBackButtonEvent = {
-  canGoBack: boolean;
-};
-
-export type CapacitorAppStateChangeEvent = {
-  isActive: boolean;
-};
-
-export type CapacitorAppPlugin = {
-  addListener: ((
-    eventName: "backButton",
-    listenerFunc: (event: CapacitorBackButtonEvent) => void
-  ) => Promise<{ remove: () => void }>) &
-    ((
-      eventName: "appStateChange",
-      listenerFunc: (event: CapacitorAppStateChangeEvent) => void
-    ) => Promise<{ remove: () => void }>);
-  exitApp: () => void;
-};
+declare global {
+  interface Window {
+    __vagudleBackNavPatched?: boolean;
+  }
+}
 
 type StackEntry = {
   id: number;
@@ -27,12 +13,21 @@ type StackEntry = {
 
 const stack: StackEntry[] = [];
 let nextId = 1;
-let listenerRegistered = false;
+let listenerHandle: Promise<{ remove: () => void }> | null = null;
+
+const isNativePlatform = (): boolean => {
+  if (typeof window === "undefined") return false;
+  return window.Capacitor?.isNativePlatform?.() ?? false;
+};
 
 const getAppPlugin = (): CapacitorAppPlugin | null => {
-  if (typeof window === "undefined") return null;
-  if (!window.Capacitor?.isNativePlatform?.()) return null;
-  return window.Capacitor.Plugins?.App ?? null;
+  if (!isNativePlatform()) return null;
+  return window.Capacitor?.Plugins?.App ?? null;
+};
+
+const getBackNavigationPlugin = (): BackNavigationPlugin | null => {
+  if (!isNativePlatform()) return null;
+  return window.Capacitor?.Plugins?.BackNavigation ?? null;
 };
 
 const handleBackButton = (event: CapacitorBackButtonEvent): void => {
@@ -48,12 +43,64 @@ const handleBackButton = (event: CapacitorBackButtonEvent): void => {
   getAppPlugin()?.exitApp();
 };
 
-const ensureListenerRegistered = (): void => {
-  if (listenerRegistered) return;
+const updateNativeBackState = async (): Promise<void> => {
+  const plugin = getBackNavigationPlugin();
+  if (!plugin) return;
+
+  const isRoot = stack.length === 0 && window.location.pathname === "/";
+  await plugin.setIsRoot({ isRoot });
+};
+
+const patchHistoryForNativeBackSync = (): void => {
+  if (typeof window === "undefined") return;
+  if (!isNativePlatform()) return;
+  if (window.__vagudleBackNavPatched) return;
+  window.__vagudleBackNavPatched = true;
+
+  const originalPushState = window.history.pushState.bind(window.history);
+  window.history.pushState = (
+    ...args: Parameters<typeof window.history.pushState>
+  ) => {
+    originalPushState(...args);
+    void updateNativeBackState();
+  };
+
+  const originalReplaceState = window.history.replaceState.bind(window.history);
+  window.history.replaceState = (
+    ...args: Parameters<typeof window.history.replaceState>
+  ) => {
+    originalReplaceState(...args);
+    void updateNativeBackState();
+  };
+
+  window.addEventListener("popstate", () => {
+    void updateNativeBackState();
+  });
+
+  void updateNativeBackState();
+};
+
+patchHistoryForNativeBackSync();
+
+export const syncNativeBackState = (): void => {
+  void updateNativeBackState();
+};
+
+const updateListenerRegistration = async (): Promise<void> => {
   const plugin = getAppPlugin();
   if (!plugin) return;
-  listenerRegistered = true;
-  void plugin.addListener("backButton", handleBackButton);
+
+  void updateNativeBackState();
+
+  if (stack.length > 0) {
+    if (!listenerHandle) {
+      listenerHandle = plugin.addListener("backButton", handleBackButton);
+    }
+  } else if (listenerHandle) {
+    const handle = await listenerHandle;
+    handle.remove();
+    listenerHandle = null;
+  }
 };
 
 export const useBackButtonClose = (
@@ -69,17 +116,88 @@ export const useBackButtonClose = (
   useEffect(() => {
     if (!isOpen) return undefined;
 
-    ensureListenerRegistered();
-
     const entry: StackEntry = {
       id: nextId++,
       onBack: () => onBackRef.current(),
     };
     stack.push(entry);
+    void updateListenerRegistration();
 
     return () => {
       const index = stack.findIndex((item) => item.id === entry.id);
-      if (index !== -1) stack.splice(index, 1);
+      if (index !== -1) {
+        stack.splice(index, 1);
+        void updateListenerRegistration();
+      }
     };
   }, [isOpen]);
+};
+
+export type BackGestureState = {
+  isStarted: boolean;
+  progress: number;
+  swipeEdge: number;
+};
+
+export const useBackGestureProgress = (
+  isEnabled: boolean
+): BackGestureState => {
+  const [state, setState] = useState<BackGestureState>({
+    isStarted: false,
+    progress: 0,
+    swipeEdge: 0,
+  });
+
+  useEffect(() => {
+    if (!isEnabled) return undefined;
+
+    const plugin = getBackNavigationPlugin();
+    if (!plugin) return undefined;
+
+    const registration = Promise.all([
+      plugin.addListener("backStarted", (event) => {
+        setState({
+          isStarted: true,
+          progress: event.progress,
+          swipeEdge: event.swipeEdge,
+        });
+      }),
+      plugin.addListener("backProgressed", (event) => {
+        setState((prev) => ({ ...prev, progress: event.progress }));
+      }),
+      plugin.addListener("backCancelled", () => {
+        setState({ isStarted: false, progress: 0, swipeEdge: 0 });
+      }),
+    ]);
+
+    return () => {
+      void registration.then((handles) => {
+        handles.forEach((h) => h.remove());
+      });
+    };
+  }, [isEnabled]);
+
+  return state;
+};
+
+export const computePeekStyle = (progress: number) => ({
+  transform: `scale(${1 - progress * 0.08})`,
+  opacity: 1 - progress * 0.15,
+});
+
+export type BackGestureStyle = {
+  transform: string | undefined;
+  opacity: number;
+};
+
+export const useBackGestureStyle = (isOpen: boolean): BackGestureStyle => {
+  const { isStarted, progress } = useBackGestureProgress(isOpen);
+
+  return useMemo(
+    () =>
+      isStarted
+        ? computePeekStyle(progress)
+        : { transform: undefined, opacity: 1 },
+    [isStarted, progress]
+  );
 };

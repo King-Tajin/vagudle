@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import type { DailyConfig, DailyStats } from "../../lib/daily";
 import { msUntilNextDailyRelease } from "../../lib/daily";
-import { useBackButtonClose } from "../../lib/backButton";
+import { useBackButtonClose, useBackGestureStyle } from "../../lib/backButton";
 import strings from "../../constants/strings";
 
 export type DailyOrigin =
@@ -369,6 +369,7 @@ export const DailyModal = ({
   const countdown = useCountdownToNextDaily();
 
   useBackButtonClose(isOpen, onClose);
+  const peekStyle = useBackGestureStyle(isOpen);
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -384,7 +385,10 @@ export const DailyModal = ({
         >
           <div
             className="absolute inset-0 transition-opacity"
-            style={{ background: "rgba(0,0,0,0.92)" }}
+            style={{
+              background: "rgba(0,0,0,0.92)",
+              opacity: peekStyle.opacity,
+            }}
           />
         </TransitionChild>
 
@@ -398,10 +402,11 @@ export const DailyModal = ({
           leaveTo="opacity-0 translate-y-4 scale-95"
         >
           <div
-            className="relative max-w-sm w-full mx-auto shadow-2xl"
+            className="relative max-w-sm w-full mx-auto shadow-2xl transition-all duration-75"
             style={{
               background: "#0a0014",
               border: "4px solid #5000aa",
+              ...peekStyle,
             }}
           >
             <div

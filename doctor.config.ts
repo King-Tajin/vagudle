@@ -92,7 +92,10 @@ export default {
       {
         // Cleanup is already returned; listener.remove() runs inside a
         // .then() because Capacitor's addListener resolves asynchronously.
-        files: ["**/src/hooks/useDailyWidgetSync.ts"],
+        files: [
+          "**/src/hooks/useDailyWidgetSync.ts",
+          "**/src/lib/backButton.ts",
+        ],
         rules: ["react-doctor/effect-needs-cleanup"],
       },
     ],
