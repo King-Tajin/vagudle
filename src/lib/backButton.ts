@@ -82,10 +82,6 @@ const patchHistoryForNativeBackSync = (): void => {
 
 patchHistoryForNativeBackSync();
 
-export const syncNativeBackState = (): void => {
-  void updateNativeBackState();
-};
-
 const updateListenerRegistration = async (): Promise<void> => {
   const plugin = getAppPlugin();
   if (!plugin) return;
@@ -174,6 +170,7 @@ export const useBackGestureProgress = (
       void registration.then((handles) => {
         handles.forEach((h) => h.remove());
       });
+      setState({ isStarted: false, progress: 0, swipeEdge: 0 });
     };
   }, [isEnabled]);
 

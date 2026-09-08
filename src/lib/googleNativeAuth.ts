@@ -1,5 +1,7 @@
 const getFirebaseAuthPlugin = (): CapacitorFirebaseAuthPlugin | null => {
-  return window.Capacitor?.Plugins?.FirebaseAuthentication ?? null;
+  if (typeof window === "undefined") return null;
+  if (!window.Capacitor?.isNativePlatform?.()) return null;
+  return window.Capacitor.Plugins?.FirebaseAuthentication ?? null;
 };
 
 export const isGoogleNativeAvailable = (): boolean => {

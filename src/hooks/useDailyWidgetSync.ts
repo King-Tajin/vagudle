@@ -6,7 +6,7 @@ import {
   type DailyResult,
   type DailyStats,
 } from "../lib/daily";
-import { syncDailyWidget, type DailyWidgetRankState } from "../lib/dailyWidget";
+import { syncDailyWidget } from "../lib/dailyWidget";
 import type { CloudAuthUser } from "./useCloudAuth";
 
 type Params = {
